@@ -17,10 +17,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M10 18a8 8 0 1 1 5.293-2.707l4.707 4.707-1.414 1.414-4.707-4.707A7.963 7.963 0 0 1 10 18m0-2a6 6 0 1 0 0-12 6 6 0 0 0 0 12"/>
             </svg>
-            <input id="search" type="search" placeholder="Убрать" autocomplete="off" />
+            <input id="search" type="search" placeholder="Поиск" autocomplete="off" />
           </label>
         </div>
         <div class="toolbar-right">
+          <button id="themeToggle" class="icon-btn" type="button" title="Переключить тему">🌙</button>
           <button id="newTaskBtn" class="btn primary" type="button">Новая задача</button>
         </div>
       </header>
@@ -75,7 +76,7 @@
           </nav>
         </aside>
 
-        <!-- Центральная панель (быстрый ввод удалён) -->
+        <!-- Центральная панель -->
         <main class="content" aria-label="Список задач">
           <!-- Панель сортировки -->
           <section class="sortbar">
@@ -176,7 +177,7 @@
       </div>
     </div>
 
-    <!-- Модалка подтверждения удаления (как было) -->
+    <!-- Модалка подтверждения удаления -->
     <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-sheet">
         <div id="modalTitle" class="modal-title">Удалить задачу?</div>

@@ -49,7 +49,6 @@ func (s *TaskService) SetDone(ctx context.Context, id int64, done bool) error {
 }
 
 func (s *TaskService) ListTasks(ctx context.Context, f models.TaskFilter) ([]models.Task, error) {
-	// значения по умолчанию
 	if f.Status == "" {
 		f.Status = "all"
 	}

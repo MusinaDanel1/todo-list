@@ -28,18 +28,16 @@ type ListReq struct {
 	SortOrder string `json:"sort_order"`
 }
 
-// ИСПРАВЛЕНО: убрали completed, поправили due_at
 type TaskInput struct {
 	Title    string `json:"title"`
 	Body     string `json:"body"`
 	Priority string `json:"priority"`
-	DueAt    string `json:"due_at,omitempty"` // оставляем string для парсинга ISO
+	DueAt    string `json:"due_at,omitempty"`
 }
 
 func (h *TaskHandler) CreateTask(input TaskInput) (*models.Task, error) {
 	var dueAt *time.Time
 	if input.DueAt != "" {
-		// Парсим ISO формат из JavaScript
 		if t, err := time.Parse(time.RFC3339, input.DueAt); err == nil {
 			dueAt = &t
 		}
