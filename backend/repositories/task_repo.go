@@ -28,9 +28,9 @@ func NewPGTaskRepository(db *sql.DB) *PGTaskRepository { return &PGTaskRepositor
 
 func (r *PGTaskRepository) Create(ctx context.Context, t *models.Task) (int64, error) {
 	row := r.DB.QueryRowContext(ctx, `
-		INSERT INTO tasks (title, done, priority, due_at)
-		VALUES ($1,$2,$3,$4)
-		RETURNING id, created_at, updated_at
+		INSERT INTO tasks (title, body, done, priority, due_at)
+        VALUES ($1,$2,$3,$4,$5)
+        RETURNING id, created_at, updated_at
 	`, t.Title, t.Done, string(t.Priority), t.DueAt)
 	if err := row.Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt); err != nil {
 		return 0, err
@@ -44,9 +44,9 @@ func (r *PGTaskRepository) Get(ctx context.Context, id int64) (*models.Task, err
 	var due sql.NullTime
 
 	err := r.DB.QueryRowContext(ctx, `
-		SELECT id, title, done, priority, due_at, created_at, updated_at
+		SELECT id, title, body, done, priority, due_at, created_at, updated_at
 		FROM tasks WHERE id=$1
-	`, id).Scan(&t.ID, &t.Title, &t.Done, &pr, &due, &t.CreatedAt, &t.UpdatedAt)
+	`, id).Scan(&t.ID, &t.Title, &t.Body, &t.Done, &pr, &due, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (r *PGTaskRepository) List(ctx context.Context, f models.TaskFilter) ([]mod
 	}
 
 	query := fmt.Sprintf(`
-		SELECT id, title, done, priority, due_at, created_at, updated_at
+		SELECT id, title, body, done, priority, due_at, created_at, updated_at
 		FROM tasks
 		WHERE %s
 		ORDER BY %s %s, id DESC
@@ -136,7 +136,7 @@ func (r *PGTaskRepository) List(ctx context.Context, f models.TaskFilter) ([]mod
 		var t models.Task
 		var pr string
 		var due sql.NullTime
-		if err := rows.Scan(&t.ID, &t.Title, &t.Done, &pr, &due, &t.CreatedAt, &t.UpdatedAt); err != nil {
+		if err := rows.Scan(&t.ID, &t.Title, &t.Body, &t.Done, &pr, &due, &t.CreatedAt, &t.UpdatedAt); err != nil {
 			return nil, err
 		}
 		if due.Valid {

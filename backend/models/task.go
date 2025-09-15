@@ -13,6 +13,7 @@ const (
 type Task struct {
 	ID        int64      `json:"id"`
 	Title     string     `json:"title"`
+	Body      string     `json:"body"`
 	Done      bool       `json:"done"`
 	Priority  Priority   `json:"priority"`
 	DueAt     *time.Time `json:"due_at,omitempty"`

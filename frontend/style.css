@@ -1,150 +1,360 @@
-/* ==== Rick & Morty theme: кисelyе порталы, неоновые акценты, мягкие свечения ==== */
+/* ==========================================================================
+   Apple Notes–style UI for To-Do (vanilla)
+   ========================================================================== */
+
+/* ----------------------------- Tokens (Light) ---------------------------- */
 :root{
-  --bg-dark:#08140f;
-  --ink:#e8fff2;
-  --card:rgba(8,20,15,.6);
-  --border:rgba(163,255,198,.18);
+  --bg:            #f5f5f7;
+  --bg-elevated:   #ffffff;
+  --text:          #111111;
+  --text-dim:      #6b7280;          /* secondary */
+  --tint:          #007aff;          /* iOS Blue */
+  --tint-pressed:  #0a62ce;
+  --danger:        #ff3b30;
+  --danger-pressed:#d72a21;
 
-  --portal-green:#00ff9c;   /* основной неоновый зелёный */
-  --portal-lime:#7cff00;    /* лаймовый градиент */
-  --portal-cyan:#66ffe0;    /* циановый акцент */
-  --portal-dark:#06120d;    /* тёмный фон карточек */
-  --portal-shadow:0 10px 35px rgba(0,255,156,.15), 0 18px 60px rgba(0,0,0,.55);
+  --hairline:      rgba(60,60,67,0.29); /* iOS separator */
+  --hairline-soft: rgba(60,60,67,0.18);
 
-  --danger:#ff6b8b;         /* для high */
-  --warn:#ffe866;           /* для medium */
-  --calm:#a8ffe6;           /* для low */
+  --shadow-1:      0 1px 2px rgba(0,0,0,.04), 0 3px 12px rgba(0,0,0,.06);
+  --shadow-2:      0 10px 30px rgba(0,0,0,.08);
+
+  --radius:        12px;
+  --radius-sm:     10px;
+
+  --sidebar-w:     260px;
+  --detail-w:      360px;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-html,body{height:100%}
+/* ----------------------------- Tokens (Dark auto) ------------------------ */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:            #0b0b0f;
+    --bg-elevated:   #111114;
+    --text:          #e9e9ee;
+    --text-dim:      #9aa0a6;
+    --tint:          #0a84ff;
+    --tint-pressed:  #0766cc;
+    --danger:        #ff453a;
+    --danger-pressed:#d7352b;
+
+    --hairline:      rgba(255,255,255,0.14);
+    --hairline-soft: rgba(255,255,255,0.08);
+
+    --shadow-1:      0 1px 2px rgba(0,0,0,.35), 0 8px 26px rgba(0,0,0,.45);
+    --shadow-2:      0 14px 40px rgba(0,0,0,.6);
+  }
+}
+
+/* ----------------------------- Tokens (Dark manual) ---------------------- */
+/* Если на <html> добавлена class="dark", эти переменные перекроют тему */
+html.dark{
+  --bg:            #0b0b0f;
+  --bg-elevated:   #111114;
+  --text:          #e9e9ee;
+  --text-dim:      #9aa0a6;
+  --tint:          #0a84ff;
+  --tint-pressed:  #0766cc;
+  --danger:        #ff453a;
+  --danger-pressed:#d7352b;
+
+  --hairline:      rgba(255,255,255,0.14);
+  --hairline-soft: rgba(255,255,255,0.08);
+
+  --shadow-1:      0 1px 2px rgba(0,0,0,.35), 0 8px 26px rgba(0,0,0,.45);
+  --shadow-2:      0 14px 40px rgba(0,0,0,.6);
+}
+
+/* ----------------------------- Base ------------------------------------- */
+*{ box-sizing: border-box }
+html, body{ height: 100% }
 body{
-  margin:0;
-  color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;
-  background:var(--bg-dark);
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-.container{max-width:980px;margin:0 auto;padding:28px;position:relative;z-index:2}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:14px}
-.title{
-  font-size:34px;font-weight:800;margin:0;
-  color:#e7ffee;
-  text-shadow:0 0 12px rgba(124,255,0,.45),0 0 36px rgba(0,255,156,.25);
+h1,h2,h3{ margin:0 }
+input,select,button{ font: inherit; color: inherit }
+button{ cursor: pointer; background: none; border: 0 }
+
+/* Focus ring (macOS-like) */
+:focus-visible{
+  outline: 3px solid color-mix(in oklab, var(--tint) 45%, white);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
-/* Анимированный портальный фон */
-.portal-bg{
-  position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(1200px 800px at 70% -20%, rgba(124,255,0,.14), transparent 60%),
-    radial-gradient(1000px 700px at 10% 110%, rgba(0,255,156,.08), transparent 60%),
-    linear-gradient(#0b0b0f, #08140f 40%, #0b0b10);
-}
-.portal-bg::before{
-  content:""; position:absolute; left:50%; top:50%;
-  width:120vmax; height:120vmax; transform:translate(-50%,-50%) rotate(0deg);
-  background:
-    conic-gradient(from 0deg, rgba(0,255,156,.15), rgba(124,255,0,.15), rgba(0,255,156,.15));
-  filter:blur(28px) saturate(160%);
-  border-radius:50%;
-  animation:portal-spin 40s linear infinite;
-  opacity:.35;
-}
-@keyframes portal-spin{ to{ transform:translate(-50%,-50%) rotate(360deg);} }
+/* Hairline separator */
+.hr{ height: 1px; background: var(--hairline) }
 
-/* Маленькая “сфера портала” в шапке */
-.portal-orb{
-  width:42px;height:42px;border-radius:50%;
-  background:
-    radial-gradient(circle at 30% 30%, #eafff6 0%, #b6ffe0 20%, transparent 60%),
-    radial-gradient(circle at 70% 70%, #00ff9c 0%, #7cff00 35%, transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(0,255,156,.15), transparent 65%);
-  box-shadow:0 0 0 1px rgba(124,255,0,.35), 0 0 40px rgba(0,255,156,.4), inset 0 0 18px rgba(0,255,156,.35);
-  animation:orb 6s ease-in-out infinite;
-}
-@keyframes orb{
-  0%,100%{ transform:translateY(0) scale(1); filter:hue-rotate(0deg); }
-  50%{ transform:translateY(-2px) scale(1.03); filter:hue-rotate(12deg); }
-}
-
-.section-title{font-size:18px;font-weight:700;margin:0 0 10px}
-.row{display:flex;align-items:center}
-.gap{gap:10px}
-.wrap{flex-wrap:wrap}
-.right{justify-content:flex-end}
-
+/* Cards/elevation */
 .card{
-  border-radius:16px;padding:16px;
-  background:var(--portal-dark);
-  border:1px solid var(--border);
-  box-shadow:var(--portal-shadow);
-  position:relative; overflow:hidden;
-}
-.card.glass::after{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(135deg, rgba(124,255,0,.08), rgba(0,255,156,.05) 40%, transparent 70%);
-  mix-blend-mode:screen; opacity:.7;
+  background: var(--bg-elevated);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
 }
 
-.toolbar{margin:16px 0}
+/* --------------------------- App Structure ------------------------------- */
+.notes-app{ display:flex; flex-direction:column; min-height:100% }
 
-/* Inputs & Buttons */
+/* Top toolbar (translucent, sticky) */
+.app-toolbar{
+  position: sticky; top: 0; z-index: 5;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 16px;
+  background: color-mix(in oklab, var(--bg-elevated) 80%, transparent);
+  border-bottom:1px solid var(--hairline);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  backdrop-filter:saturate(180%) blur(14px);
+}
+.app-title{
+  font-size:22px; font-weight:700; letter-spacing:-.01em;
+}
+.toolbar-left,.toolbar-right{ display:flex; align-items:center; gap:12px }
+
+/* Search field in toolbar */
+.search{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 10px;
+  background: color-mix(in oklab, var(--bg-elevated) 92%, transparent);
+  border:1px solid var(--hairline-soft);
+  border-radius:10px;
+}
+.search input{ border:0; outline:0; background:transparent; width:220px }
+.search svg{ opacity:.6 }
+
+/* Shell: three columns */
+.app-shell{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) minmax(420px,1fr) var(--detail-w);
+  gap:16px; padding:16px; flex:1 1 auto;
+}
+
+/* ----------------------------- Sidebar ---------------------------------- */
+.sidebar{
+  display:flex; flex-direction:column; gap:18px; padding:12px;
+  border-right:1px solid var(--hairline);
+  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  border-radius: var(--radius);
+}
+.nav-group{ display:flex; flex-direction:column; gap:6px }
+.nav-header{
+  margin:6px 6px 2px; font-size:12px; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--text-dim);
+}
+.nav-item{
+  width:100%;
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px;
+  padding:8px 10px; border-radius:10px; border:1px solid transparent;
+  color:var(--text); background:transparent;
+  transition: background .12s ease, border-color .12s ease;
+}
+.nav-item:hover{
+  background: color-mix(in oklab, var(--bg-elevated) 80%, transparent);
+  border-color: var(--hairline-soft);
+}
+.nav-item.active{
+  background: color-mix(in oklab, var(--tint) 14%, var(--bg-elevated));
+  border-color: color-mix(in oklab, var(--tint) 30%, var(--hairline));
+}
+.nav-label{ justify-self:start }
+.nav-count{ justify-self:end; font-variant-numeric:tabular-nums; color:var(--text-dim) }
+
+/* Priority dots */
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px }
+.dot-high{ background:#ff453a } .dot-medium{ background:#ffcc00 } .dot-low{ background:#30d158 }
+
+/* ------------------------------ Content --------------------------------- */
+.content{ display:flex; flex-direction:column; gap:12px }
+
+/* Quick entry (title input big like Notes) */
+.quick-entry{ padding:12px }
+.quick-entry__grid{
+  display:grid; grid-template-columns: 1fr 180px 150px auto; /* title|due|prio|add */
+  gap:10px; align-items:center;
+}
+
+/* Sort bar */
+.sortbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px;
+  border:1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--bg-elevated) 92%, transparent);
+}
+.sortbar-group{ display:flex; gap:12px; align-items:center }
+.sort-field{ display:inline-flex; gap:8px; align-items:center; color:var(--text-dim); font-size:14px }
+.sortbar-actions{ display:flex; gap:8px }
+
+/* List pane */
+.list-pane{ padding:0; overflow:hidden }
+.note-list{ display:flex; flex-direction:column }
+
+/* Rows (created by JS) */
+.note-list > *, .note-row{
+  display:grid; grid-template-columns:auto 1fr auto; /* checkbox | title/meta | actions */
+  gap:12px; align-items:center; padding:12px 14px;
+  border-bottom:1px solid var(--hairline);
+}
+.note-list > *:last-child{ border-bottom:0 }
+
+.row-left{ display:inline-flex; align-items:center; gap:12px }
+.note-title{ font-weight:600; letter-spacing:-.01em }
+.note-title.done{ text-decoration:line-through; color:var(--text-dim) }
+.note-meta{
+  margin-top:2px; font-size:12px; color:var(--text-dim);
+  display:inline-flex; gap:10px; flex-wrap:wrap;
+}
+
+/* ------------------------------ Detail ---------------------------------- */
+.detail-pane{
+  padding:12px; display:flex; flex-direction:column; gap:12px; height:100%;
+}
+.detail-pane .placeholder{ text-align:center; padding:48px 12px; color:var(--text-dim) }
+.detail{ display:flex; flex-direction:column; gap:12px }
+.detail-header{ display:flex; align-items:center; justify-content:space-between; gap:12px }
+.detail-title{ font-size:20px; font-weight:700; letter-spacing:-.01em }
+.detail-actions{ display:flex; gap:8px }
+.detail-meta{ border-top:1px solid var(--hairline); padding-top:10px; display:grid; gap:6px }
+.meta-row{ display:grid; grid-template-columns:120px 1fr; gap:10px }
+.meta-row dt{ color:var(--text-dim) }
+
+/* ------------------------------ Form Controls --------------------------- */
 .input{
-  border-radius:12px;border:1px solid var(--border);
-  padding:10px 12px;background:rgba(255,255,255,.04);outline:none;color:var(--ink);
-  transition:border-color .15s ease, box-shadow .15s ease;
+  width:100%; padding:10px 12px;
+  border:1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklab, var(--bg-elevated) 96%, transparent);
+  transition: border-color .12s ease, background .12s ease, box-shadow .12s ease;
 }
+.input::placeholder{ color: color-mix(in oklab, var(--text) 40%, transparent) }
 .input:focus{
-  border-color:rgba(124,255,0,.55);
-  box-shadow:0 0 0 3px rgba(124,255,0,.18);
+  border-color: color-mix(in oklab, var(--tint) 40%, var(--hairline));
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--tint) 18%, transparent);
+}
+.input.title{ font-size:16px; font-weight:600; letter-spacing:-.01em }
+.input.input--sm{ padding:8px 10px; border-radius:8px }
+input[type="datetime-local"]{ color-scheme: light dark }
+input[type="checkbox"]{ inline-size:18px; block-size:18px }
+
+/* Buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:8px; padding:10px 14px;
+  border-radius: var(--radius-sm);
+  border:1px solid var(--hairline);
+  background: color-mix(in oklab, var(--bg-elevated) 92%, transparent);
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+}
+.btn:hover{ background: color-mix(in oklab, var(--bg-elevated) 98%, transparent) }
+.btn:active{ transform: translateY(1px) }
+
+.btn.primary{
+  border-color: color-mix(in oklab, var(--tint) 35%, var(--hairline));
+  background: var(--tint); color:#fff;
+  box-shadow: 0 2px 0 rgba(0,0,0,.12), 0 8px 18px color-mix(in oklab, var(--tint) 30%, transparent);
+}
+.btn.primary:hover{ background: color-mix(in oklab, var(--tint-pressed) 20%, var(--tint)) }
+.btn.primary:active{ background: var(--tint-pressed) }
+
+.btn.ghost{ background: transparent }
+.btn.subtle{ background: color-mix(in oklab, var(--bg-elevated) 94%, transparent) }
+
+.btn.danger{
+  border-color: color-mix(in oklab, var(--danger) 35%, var(--hairline));
+  background: var(--danger); color:#fff;
+}
+.btn.danger:hover{ background: color-mix(in oklab, var(--danger-pressed) 20%, var(--danger)) }
+.btn.danger:active{ background: var(--danger-pressed) }
+
+.btn--sm{ padding:8px 10px; border-radius:8px }
+
+.icon-btn{
+  width:34px; height:34px; border-radius:9px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:transparent; border:1px solid transparent;
+}
+.icon-btn:hover{
+  background: color-mix(in oklab, var(--bg-elevated) 90%, transparent);
+  border-color: var(--hairline-soft);
 }
 
-.btn-primary{
-  border-radius:12px;border:0;cursor:pointer;
-  background:linear-gradient(135deg, var(--portal-green), var(--portal-lime));
-  color:#092019;padding:10px 14px;font-weight:700;
-  box-shadow:0 10px 28px rgba(124,255,0,.25), 0 2px 0 rgba(0,0,0,.15);
-  transition:transform .12s ease, box-shadow .12s ease;
-}
-.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 12px 34px rgba(124,255,0,.33), 0 3px 0 rgba(0,0,0,.18); }
-.btn-primary:active{ transform:translateY(0); }
-
-.btn-ghost{
-  border-radius:12px; cursor:pointer;
-  background:transparent; color:#caffea;
-  padding:10px 14px; border:1px solid var(--border);
-  transition:border-color .15s ease, color .15s ease, background .15s ease;
-}
-.btn-ghost:hover{
-  border-color:rgba(124,255,0,.45);
-  color:#e9fff4; background:rgba(124,255,0,.06);
+/* Chips (optional) */
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:2px 8px; border-radius:999px;
+  background: color-mix(in oklab, var(--bg-elevated) 92%, transparent);
+  border:1px solid var(--hairline-soft);
+  color:var(--text-dim); font-size:12px;
 }
 
-.input[type="checkbox"]{ accent-color: var(--portal-green); }
-
-/* Списки */
-.list{display:grid;gap:10px}
-.item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.item-left{display:flex;gap:12px}
-.item-title{font-weight:700;letter-spacing:.2px}
-.item-done .item-title{text-decoration:line-through;opacity:.6}
-
-/* Бейджи приоритета */
-.badge{
-  border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow: inset 0 0 12px rgba(255,255,255,.06);
+/* ------------------------------ Modal (sheet) ---------------------------- */
+.modal{
+  position:fixed; inset:0; z-index:50;
+  background: color-mix(in oklab, #000 35%, transparent);
+  display:grid; place-items:center;
 }
-.badge--high{ background:linear-gradient(90deg, var(--danger), #ffb3c1); color:#2b121a; }
-.badge--medium{ background:linear-gradient(90deg, var(--warn), #ffd28a); color:#2b210a; }
-.badge--low{ background:linear-gradient(90deg, var(--calm), #d8fff6); color:#03201a; }
+.modal.hidden{ display:none }
+.modal-sheet{
+  width:min(520px,92vw);
+  background: var(--bg-elevated); color:var(--text);
+  border:1px solid var(--hairline); border-radius:14px;
+  box-shadow: var(--shadow-2); padding:16px;
+}
+.modal-title{ font-weight:700; font-size:18px; margin-bottom:8px }
+.modal-body{ color:var(--text-dim); margin-bottom:14px }
+.modal-actions{ display:flex; gap:8px; justify-content:flex-end }
 
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:3}
-.modal.hidden{display:none}
-.modal-content{max-width:420px;width:100%}
-.modal-title{font-weight:800;font-size:18px;margin-bottom:8px}
-.modal-text{opacity:.85;margin-bottom:12px}
+/* ------------------------------ Toasts ---------------------------------- */
+#toastHost{
+  position:fixed; right:16px; bottom:16px; z-index:60;
+  display:flex; flex-direction:column; gap:8px;
+}
+.toast{
+  background: var(--bg-elevated);
+  border:1px solid var(--hairline);
+  border-radius:12px;
+  padding:10px 12px;
+  box-shadow: var(--shadow-1);
+}
 
-/* responsive */
-@media (max-width:640px){ .title{font-size:28px} }
+/* ------------------------------ Utilities -------------------------------- */
+.hidden{ display:none !important }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace }
+
+/* ------------------------------ Responsive ------------------------------- */
+@media (max-width: 1200px){
+  .app-shell{ grid-template-columns: var(--sidebar-w) 1fr }
+  .detail-pane{ display:none }
+}
+@media (max-width: 880px){
+  .app-shell{ grid-template-columns: 1fr; gap:12px }
+  .sidebar{
+    border-right:0; border:1px solid var(--hairline);
+    background: var(--bg-elevated);
+  }
+  .quick-entry__grid{ grid-template-columns: 1fr 1fr }
+  .quick-entry__grid .priority{ order:2 }
+  .quick-entry__grid .due{ order:3 }
+  .quick-entry__grid .add{ grid-column:1 / -1 }
+  .search input{ width:160px }
+}
+@media (max-width: 420px){
+  .app-toolbar{ padding:8px 12px }
+  .sortbar{ padding:8px 10px }
+  .btn--sm, .input.input--sm{ padding:7px 9px }
+}
+
+/* ------------------------------ Print ----------------------------------- */
+@media print{
+  .app-toolbar, .sidebar, .sortbar, .modal, #toastHost{ display:none !important }
+  .app-shell{ grid-template-columns: 1fr }
+  .card{ box-shadow:none; border-color:#ccc }
+}

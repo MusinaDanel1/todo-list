@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 )
 
+//go:embed frontend/dist
 var assets embed.FS
 
 func main() {
@@ -26,7 +27,11 @@ func main() {
 		Height: 720,
 		Assets: assets,
 		Bind: []interface{}{
-			h, // window.backend.TaskHandler.*
+			h,
+		},
+		// 🔹 Включаем DevTools
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
 		},
 	}); err != nil {
 		log.Fatal(err)

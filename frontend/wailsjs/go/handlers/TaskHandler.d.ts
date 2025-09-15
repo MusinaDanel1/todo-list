@@ -3,7 +3,7 @@
 import {handlers} from '../models';
 import {models} from '../models';
 
-export function CreateTask(arg1:handlers.CreateTaskReq):Promise<models.Task>;
+export function CreateTask(arg1:handlers.TaskInput):Promise<models.Task>;
 
 export function DeleteTask(arg1:number):Promise<void>;
 

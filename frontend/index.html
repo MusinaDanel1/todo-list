@@ -3,94 +3,194 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ToDo — Rick & Morty Edition</title>
+    <title>Задачи — в стиле Apple Notes</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
-  <body class="h-full bg-base-dark dark:bg-base-dark dark:text-white">
-    <!-- Портальный анимированный фон -->
-    <div class="portal-bg" aria-hidden="true"></div>
 
-    <div class="container rick">
-      <header class="header">
-        <div class="brand">
-          <div class="portal-orb" aria-hidden="true"></div>
-          <h1 class="title">Задачи — Rick & Morty</h1>
+  <body class="h-full">
+    <div class="notes-app">
+      <!-- Верхняя панель -->
+      <header class="app-toolbar">
+        <div class="toolbar-left">
+          <h1 class="app-title">Задачи</h1>
+          <label class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M10 18a8 8 0 1 1 5.293-2.707l4.707 4.707-1.414 1.414-4.707-4.707A7.963 7.963 0 0 1 10 18m0-2a6 6 0 1 0 0-12 6 6 0 0 0 0 12"/>
+            </svg>
+            <input id="search" type="search" placeholder="Убрать" autocomplete="off" />
+          </label>
         </div>
-        <button id="themeToggle" class="btn-ghost" aria-label="Toggle theme">🌙</button>
+        <div class="toolbar-right">
+          <button id="newTaskBtn" class="btn primary" type="button">Новая задача</button>
+        </div>
       </header>
 
-      <!-- форма добавления -->
-      <section class="card glass">
-        <h2 class="section-title">Новая задача</h2>
-        <form id="taskForm" class="row gap wrap">
-          <input id="title" class="input flex-1" placeholder="Что нужно сделать, Морти?" />
-          <select id="priority" class="input">
-            <option value="low">Низкий</option>
-            <option value="medium" selected>Средний</option>
-            <option value="high">Высокий</option>
-          </select>
-          <input id="due" class="input" type="datetime-local" />
-          <button class="btn-primary" type="submit">Добавить</button>
-        </form>
-      </section>
+      <!-- Три панели -->
+      <div class="app-shell">
+        <!-- Сайдбар -->
+        <aside id="sidebar" class="sidebar" aria-label="Фильтры">
+          <nav class="nav-group">
+            <div class="nav-header">Папки</div>
 
-      <!-- фильтры/сортировки -->
-      <section class="toolbar row gap wrap">
-        <label class="lbl">Статус
-          <select id="status" class="input">
-            <option value="all">Все</option>
-            <option value="active">Активные</option>
-            <option value="completed">Выполненные</option>
-          </select>
-        </label>
-        <label class="lbl">Дата
-          <select id="date_scope" class="input">
-            <option value="all">Все</option>
-            <option value="today">Сегодня</option>
-            <option value="week">На неделю</option>
-            <option value="overdue">Просроченные</option>
-          </select>
-        </label>
-        <label class="lbl">Сортировка
-          <select id="sort_by" class="input">
-            <option value="created_at">Дата создания</option>
-            <option value="due_at">Дедлайн</option>
-            <option value="priority">Приоритет</option>
-          </select>
-        </label>
-        <label class="lbl">Порядок
-          <select id="sort_order" class="input">
-            <option value="desc">По убыванию</option>
-            <option value="asc">По возрастанию</option>
-          </select>
-        </label>
-        <button id="reload" class="btn-ghost">Обновить</button>
-      </section>
+            <button class="nav-item active" data-filter="all" type="button">
+              <span class="nav-label">Все</span>
+              <span class="nav-count" id="countAll">0</span>
+            </button>
 
-      <!-- списки -->
-      <section>
-        <h3 class="section-title">Активные</h3>
-        <div id="listActive" class="list"></div>
-      </section>
+            <button class="nav-item" data-filter="today" type="button">
+              <span class="nav-label">Сегодня</span>
+              <span class="nav-count" id="countToday">0</span>
+            </button>
 
-      <section>
-        <h3 class="section-title">Выполненные</h3>
-        <div id="listCompleted" class="list"></div>
-      </section>
+            <button class="nav-item" data-filter="week" type="button">
+              <span class="nav-label">На неделю</span>
+              <span class="nav-count" id="countWeek">0</span>
+            </button>
+
+            <button class="nav-item" data-filter="overdue" type="button">
+              <span class="nav-label">Просроченные</span>
+              <span class="nav-count" id="countOverdue">0</span>
+            </button>
+
+            <button class="nav-item" data-filter="completed" type="button">
+              <span class="nav-label">Выполненные</span>
+              <span class="nav-count" id="countCompleted">0</span>
+            </button>
+          </nav>
+
+          <nav class="nav-group">
+            <div class="nav-header">Приоритет</div>
+            <button class="nav-item" data-priority="high" type="button">
+              <span class="dot dot-high" aria-hidden="true"></span>
+              <span class="nav-label">Высокий</span>
+            </button>
+            <button class="nav-item" data-priority="medium" type="button">
+              <span class="dot dot-medium" aria-hidden="true"></span>
+              <span class="nav-label">Средний</span>
+            </button>
+            <button class="nav-item" data-priority="low" type="button">
+              <span class="dot dot-low" aria-hidden="true"></span>
+              <span class="nav-label">Низкий</span>
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Центральная панель (быстрый ввод удалён) -->
+        <main class="content" aria-label="Список задач">
+          <!-- Панель сортировки -->
+          <section class="sortbar">
+            <div class="sortbar-group">
+              <label class="sort-field">
+                <span>Сортировка</span>
+                <select id="sort_by" class="input input--sm">
+                  <option value="created_at">Дата создания</option>
+                  <option value="due_at">Дедлайн</option>
+                  <option value="priority">Приоритет</option>
+                </select>
+              </label>
+              <label class="sort-field">
+                <span>Порядок</span>
+                <select id="sort_order" class="input input--sm">
+                  <option value="desc">По убыванию</option>
+                  <option value="asc">По возрастанию</option>
+                </select>
+              </label>
+            </div>
+            <div class="sortbar-actions">
+              <button id="reload" class="btn ghost btn--sm" type="button">Обновить</button>
+            </div>
+          </section>
+
+          <!-- Список задач -->
+          <section class="list-pane card" aria-live="polite">
+            <div id="taskList" class="note-list" role="list"></div>
+          </section>
+        </main>
+
+        <!-- Правая панель: детальный просмотр -->
+        <aside class="detail-pane card" id="detailPane" aria-label="Детали задачи">
+          <div class="placeholder" id="detailEmpty">
+            <h2>Выберите задачу</h2>
+            <p>Создайте новую через «Новая задача» вверху справа.</p>
+          </div>
+
+          <article class="detail" id="detailCard" hidden>
+            <header class="detail-header">
+              <h2 id="detailTitle" class="detail-title"></h2>
+              <div class="detail-actions">
+                <button id="detailToggleDone" class="btn subtle" type="button">Отметить как выполнено</button>
+                <button id="detailDelete" class="btn danger" type="button">Удалить</button>
+              </div>
+            </header>
+
+            <div id="detailBody" class="detail-body"></div>
+
+            <dl class="detail-meta">
+              <div class="meta-row">
+                <dt>Дедлайн</dt>
+                <dd id="detailDue">—</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Приоритет</dt>
+                <dd id="detailPriority">—</dd>
+              </div>
+              <div class="meta-row">
+                <dt>Создано</dt>
+                <dd id="detailCreatedAt">—</dd>
+              </div>
+            </dl>
+          </article>
+        </aside>
+      </div>
     </div>
 
-    <!-- модалка подтверждения -->
-    <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-content glass card">
-        <div class="modal-title">Подтверждение</div>
-        <div class="modal-text">Удалить задачу безвозвратно?</div>
-        <div class="row gap right">
-          <button id="modalCancel" class="btn-ghost">Отмена</button>
-          <button id="modalOk" class="btn-primary">Удалить</button>
+    <!-- Sheet: СОЗДАНИЕ НОВОЙ ЗАДАЧИ -->
+    <div id="createModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="createTitle">
+      <div class="modal-sheet">
+        <form id="createForm" autocomplete="off">
+          <div id="createTitle" class="modal-title">Новая задача</div>
+
+          <div class="modal-body">
+            <div style="display:grid; gap:10px;">
+              <input id="c_title" class="input" placeholder="Заголовок" required />
+
+              <!-- Сама заметка -->
+              <textarea id="c_body" class="input" rows="5" placeholder="Текст заметки"></textarea>
+
+              <div style="display:grid; grid-template-columns: 1fr 160px; gap:10px;">
+                <input id="c_due" class="input" type="datetime-local" />
+                <select id="c_priority" class="input">
+                  <option value="low">Низкий</option>
+                  <option value="medium" selected>Средний</option>
+                  <option value="high">Высокий</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="createCancel" class="btn ghost">Отмена</button>
+            <button type="submit" id="createSave" class="btn primary">Добавить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Модалка подтверждения удаления (как было) -->
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-sheet">
+        <div id="modalTitle" class="modal-title">Удалить задачу?</div>
+        <div class="modal-body">Это действие нельзя отменить.</div>
+        <div class="modal-actions">
+          <button id="modalCancel" class="btn ghost" type="button">Отмена</button>
+          <button id="modalOk" class="btn danger" type="button">Удалить</button>
         </div>
       </div>
     </div>
 
-    <script src="/app.js"></script>
+    <!-- Тосты -->
+    <div id="toastHost" aria-live="polite" aria-atomic="true"></div>
+
+    <script type="module" src="/app.js"></script>
   </body>
 </html>

@@ -8,16 +8,15 @@ import (
 	"todo-list/backend/services"
 )
 
-// TaskHandler — слой delivery (биндится в Wails).
 type TaskHandler struct {
 	svc *services.TaskService
 }
 
 func NewTaskHandler(svc *services.TaskService) *TaskHandler { return &TaskHandler{svc: svc} }
 
-// DTOs, видимые фронту (Wails)
 type CreateTaskReq struct {
 	Title    string     `json:"title"`
+	Body     string     `json:"body"`
 	Priority string     `json:"priority"`
 	DueAt    *time.Time `json:"due_at"`
 }
@@ -29,8 +28,23 @@ type ListReq struct {
 	SortOrder string `json:"sort_order"`
 }
 
-func (h *TaskHandler) CreateTask(req CreateTaskReq) (*models.Task, error) {
-	return h.svc.CreateTask(context.Background(), req.Title, req.Priority, req.DueAt)
+type TaskInput struct {
+	Title    string `json:"title"`
+	Body     string `json:"body"`
+	Priority string `json:"priority"`
+	DueAt    string `json:"due_at,omitempty"`
+}
+
+func (h *TaskHandler) CreateTask(input TaskInput) (*models.Task, error) {
+	var dueAt *time.Time
+	if input.DueAt != "" {
+		t, err := time.Parse(time.RFC3339, input.DueAt)
+		if err == nil {
+			dueAt = &t
+		}
+	}
+
+	return h.svc.CreateTask(context.Background(), input.Title, input.Body, input.Priority, dueAt)
 }
 
 func (h *TaskHandler) DeleteTask(id int64) error {

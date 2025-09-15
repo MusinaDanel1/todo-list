@@ -18,7 +18,7 @@ func NewTaskService(repo repositories.TaskRepository) *TaskService {
 	return &TaskService{repo: repo}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, title string, priority string, dueAt *time.Time) (*models.Task, error) {
+func (s *TaskService) CreateTask(ctx context.Context, title string, body string, priority string, dueAt *time.Time) (*models.Task, error) {
 	title = strings.TrimSpace(title)
 	if title == "" {
 		return nil, errors.New("title is required")
@@ -29,6 +29,7 @@ func (s *TaskService) CreateTask(ctx context.Context, title string, priority str
 	}
 	t := &models.Task{
 		Title:    title,
+		Body:     body,
 		Done:     false,
 		Priority: p,
 		DueAt:    dueAt,
