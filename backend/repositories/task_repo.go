@@ -1,3 +1,4 @@
+// Package repositories реализует доступ к базе данных PostgreSQL
 package repositories
 
 import (
@@ -12,20 +13,28 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// TaskRepository определяет методы для работы с задачами в базе данных
 type TaskRepository interface {
+	// Create сохраняет задачу и возвращает её ID
 	Create(ctx context.Context, t *models.Task) (int64, error)
+	// Get возвращает задачу по ID
 	Get(ctx context.Context, id int64) (*models.Task, error)
+	// Delete удаляет задачу по ID
 	Delete(ctx context.Context, id int64) error
+	// SetDone обновляет статус выполнения задачи
 	SetDone(ctx context.Context, id int64, done bool) error
+	// List возвращает отфильтрованный список задач
 	List(ctx context.Context, f models.TaskFilter) ([]models.Task, error)
 }
 
+// PGTaskRepository реализует TaskRepository для PostgreSQL
 type PGTaskRepository struct {
 	DB *sql.DB
 }
 
 func NewPGTaskRepository(db *sql.DB) *PGTaskRepository { return &PGTaskRepository{DB: db} }
 
+// Create сохраняет задачу и заполняет её ID, CreatedAt и UpdatedAt
 func (r *PGTaskRepository) Create(ctx context.Context, t *models.Task) (int64, error) {
 	row := r.DB.QueryRowContext(ctx, `
 		INSERT INTO tasks (title, body, done, priority, due_at)
@@ -38,6 +47,7 @@ func (r *PGTaskRepository) Create(ctx context.Context, t *models.Task) (int64, e
 	return t.ID, nil
 }
 
+// Get загружает задачу по ID. Обрабатывает null значения для due_at
 func (r *PGTaskRepository) Get(ctx context.Context, id int64) (*models.Task, error) {
 	var t models.Task
 	var pr string
@@ -62,11 +72,20 @@ func (r *PGTaskRepository) Delete(ctx context.Context, id int64) error {
 	return err
 }
 
+// SetDone обновляет статус и время последнего изменения
 func (r *PGTaskRepository) SetDone(ctx context.Context, id int64, done bool) error {
 	_, err := r.DB.ExecContext(ctx, `UPDATE tasks SET done=$1, updated_at=NOW() WHERE id=$2`, done, id)
 	return err
 }
 
+// List возвращает задачи с учетом фильтров и сортировки
+// Поддерживает фильтрацию по:
+// - Статусу (active/completed)
+// - Временному диапазону (today/week/overdue)
+// Сортировка:
+// - По дате создания (created_at)
+// - По приоритету (high->medium->low)
+// - По сроку (due_at, null в конце)
 func (r *PGTaskRepository) List(ctx context.Context, f models.TaskFilter) ([]models.Task, error) {
 	clauses := []string{"1=1"}
 	args := []any{}

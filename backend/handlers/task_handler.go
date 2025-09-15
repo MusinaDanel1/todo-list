@@ -1,3 +1,4 @@
+// Package handlers содержит обработчики HTTP запросов для задач
 package handlers
 
 import (
@@ -8,12 +9,14 @@ import (
 	"todo-list/backend/services"
 )
 
+// TaskHandler обрабатывает операции с задачами
 type TaskHandler struct {
 	svc *services.TaskService
 }
 
 func NewTaskHandler(svc *services.TaskService) *TaskHandler { return &TaskHandler{svc: svc} }
 
+// CreateTaskReq устаревшая структура для обратной совместимости
 type CreateTaskReq struct {
 	Title    string     `json:"title"`
 	Body     string     `json:"body"`
@@ -21,6 +24,7 @@ type CreateTaskReq struct {
 	DueAt    *time.Time `json:"due_at"`
 }
 
+// ListReq структура для фильтрации и сортировки списка задач
 type ListReq struct {
 	Status    string `json:"status"`
 	DateScope string `json:"date_scope"`
@@ -28,6 +32,8 @@ type ListReq struct {
 	SortOrder string `json:"sort_order"`
 }
 
+// TaskInput структура для создания новой задачи
+// DueAt принимается в формате RFC3339 (например "2025-09-15T20:00:00Z")
 type TaskInput struct {
 	Title    string `json:"title"`
 	Body     string `json:"body"`
@@ -35,6 +41,8 @@ type TaskInput struct {
 	DueAt    string `json:"due_at,omitempty"`
 }
 
+// CreateTask создает новую задачу
+// Автоматически парсит дату из строки RFC3339 в *time.Time
 func (h *TaskHandler) CreateTask(input TaskInput) (*models.Task, error) {
 	var dueAt *time.Time
 	if input.DueAt != "" {
@@ -46,14 +54,18 @@ func (h *TaskHandler) CreateTask(input TaskInput) (*models.Task, error) {
 	return h.svc.CreateTask(context.Background(), input.Title, input.Body, input.Priority, dueAt)
 }
 
+// DeleteTask удаляет задачу по ID
 func (h *TaskHandler) DeleteTask(id int64) error {
 	return h.svc.DeleteTask(context.Background(), id)
 }
 
+// SetDone отмечает задачу как выполненную/невыполненную
 func (h *TaskHandler) SetDone(id int64, done bool) error {
 	return h.svc.SetDone(context.Background(), id, done)
 }
 
+// List возвращает список всех задач
+// По умолчанию сортирует по дате создания в обратном порядке
 func (h *TaskHandler) List() ([]models.Task, error) {
 	f := models.TaskFilter{
 		Status:    "all",
