@@ -7,6 +7,6 @@ export function CreateTask(arg1:handlers.TaskInput):Promise<models.Task>;
 
 export function DeleteTask(arg1:number):Promise<void>;
 
-export function List(arg1:handlers.ListReq):Promise<Array<models.Task>>;
+export function List():Promise<Array<models.Task>>;
 
 export function SetDone(arg1:number,arg2:boolean):Promise<void>;

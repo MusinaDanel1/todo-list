@@ -10,8 +10,8 @@ export function DeleteTask(arg1) {
   return window['go']['handlers']['TaskHandler']['DeleteTask'](arg1);
 }
 
-export function List(arg1) {
-  return window['go']['handlers']['TaskHandler']['List'](arg1);
+export function List() {
+  return window['go']['handlers']['TaskHandler']['List']();
 }
 
 export function SetDone(arg1, arg2) {

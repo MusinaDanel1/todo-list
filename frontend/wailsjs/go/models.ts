@@ -1,23 +1,5 @@
 export namespace handlers {
 	
-	export class ListReq {
-	    status: string;
-	    date_scope: string;
-	    sort_by: string;
-	    sort_order: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new ListReq(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.status = source["status"];
-	        this.date_scope = source["date_scope"];
-	        this.sort_by = source["sort_by"];
-	        this.sort_order = source["sort_order"];
-	    }
-	}
 	export class TaskInput {
 	    title: string;
 	    body: string;

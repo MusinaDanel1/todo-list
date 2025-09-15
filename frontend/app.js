@@ -71,13 +71,12 @@ async function callCreate({title, body, priority, due_at}) {
     throw new Error('CreateTask function not available');
   }
   
-  // API.CreateTask ожидает объект TaskInput, а не отдельные параметры
+  // API.CreateTask ожидает TaskInput без поля completed
   const taskInput = {
     title: title,
     body: body || '',
     priority: priority || 'medium',
-    due_at: due_at || null,
-    completed: false
+    due_at: due_at || '' // пустая строка если нет даты
   };
   
   try {

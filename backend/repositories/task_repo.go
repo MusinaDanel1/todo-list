@@ -29,9 +29,9 @@ func NewPGTaskRepository(db *sql.DB) *PGTaskRepository { return &PGTaskRepositor
 func (r *PGTaskRepository) Create(ctx context.Context, t *models.Task) (int64, error) {
 	row := r.DB.QueryRowContext(ctx, `
 		INSERT INTO tasks (title, body, done, priority, due_at)
-        VALUES ($1,$2,$3,$4,$5)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id, created_at, updated_at
-	`, t.Title, t.Done, string(t.Priority), t.DueAt)
+	`, t.Title, t.Body, t.Done, string(t.Priority), t.DueAt)
 	if err := row.Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt); err != nil {
 		return 0, err
 	}

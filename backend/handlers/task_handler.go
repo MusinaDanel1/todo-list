@@ -28,18 +28,19 @@ type ListReq struct {
 	SortOrder string `json:"sort_order"`
 }
 
+// ИСПРАВЛЕНО: убрали completed, поправили due_at
 type TaskInput struct {
 	Title    string `json:"title"`
 	Body     string `json:"body"`
 	Priority string `json:"priority"`
-	DueAt    string `json:"due_at,omitempty"`
+	DueAt    string `json:"due_at,omitempty"` // оставляем string для парсинга ISO
 }
 
 func (h *TaskHandler) CreateTask(input TaskInput) (*models.Task, error) {
 	var dueAt *time.Time
 	if input.DueAt != "" {
-		t, err := time.Parse(time.RFC3339, input.DueAt)
-		if err == nil {
+		// Парсим ISO формат из JavaScript
+		if t, err := time.Parse(time.RFC3339, input.DueAt); err == nil {
 			dueAt = &t
 		}
 	}
@@ -55,12 +56,12 @@ func (h *TaskHandler) SetDone(id int64, done bool) error {
 	return h.svc.SetDone(context.Background(), id, done)
 }
 
-func (h *TaskHandler) List(req ListReq) ([]models.Task, error) {
+func (h *TaskHandler) List() ([]models.Task, error) {
 	f := models.TaskFilter{
-		Status:    req.Status,
-		DateScope: req.DateScope,
-		SortBy:    req.SortBy,
-		SortOrder: req.SortOrder,
+		Status:    "all",
+		DateScope: "all",
+		SortBy:    "created_at",
+		SortOrder: "desc",
 	}
 	return h.svc.ListTasks(context.Background(), f)
 }
