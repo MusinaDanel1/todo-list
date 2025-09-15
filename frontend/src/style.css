@@ -1,26 +1,105 @@
-html {
-    background-color: rgba(27, 38, 54, 1);
-    text-align: center;
-    color: white;
-}
-
 body {
-    margin: 0;
-    color: white;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #fdfdfd;
+  color: #1c1c1e;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px;
 }
 
-@font-face {
-    font-family: "Nunito";
-    font-style: normal;
-    font-weight: 400;
-    src: local(""),
-    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+.app-container {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-#app {
-    height: 100vh;
-    text-align: center;
+.app-title {
+  margin: 0 0 20px;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.task-form {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.task-form input, .task-form select, .task-form button {
+  padding: 12px;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.task-form input:focus, .task-form select:focus {
+  outline: none;
+  border-color: #007aff;
+  box-shadow: 0 0 5px rgba(0,122,255,0.3);
+}
+
+.task-form button {
+  background-color: #007aff;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.task-form button:hover {
+  background-color: #005bbb;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-item {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  background: #f0f0f0;
+}
+
+.task-info {
+  max-width: 80%;
+}
+
+.task-title {
+  font-weight: 600;
+  margin: 0 0 5px;
+}
+
+.task-meta {
+  font-size: 14px;
+  color: #666;
+}
+
+.task-actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #ff3b30;
+}
+
+.task-actions button:hover {
+  text-decoration: underline;
 }
