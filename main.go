@@ -5,6 +5,7 @@ import (
 	"log"
 	"todo-list/backend/db"
 	"todo-list/backend/handlers"
+	"todo-list/backend/repositories"
 	"todo-list/backend/services"
 
 	"github.com/wailsapp/wails/v2"
@@ -14,22 +15,20 @@ import (
 var assets embed.FS
 
 func main() {
-	db.InitDB()
+	database := db.MustOpen()
+	repo := repositories.NewPGTaskRepository(database)
+	svc := services.NewTaskService(repo)
+	h := handlers.NewTaskHandler(svc)
 
-	taskService := services.NewTaskService()
-	taskHandler := handlers.NewTaskHandler(taskService)
-
-	err := wails.Run(&options.App{
-		Title:  "Todo List",
-		Width:  900,
-		Height: 700,
+	if err := wails.Run(&options.App{
+		Title:  "ToDo List",
+		Width:  1100,
+		Height: 720,
 		Assets: assets,
 		Bind: []interface{}{
-			taskHandler,
+			h, // window.backend.TaskHandler.*
 		},
-	})
-
-	if err != nil {
+	}); err != nil {
 		log.Fatal(err)
 	}
 }

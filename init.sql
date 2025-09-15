@@ -1,28 +1,33 @@
-CREATE TABLE tasks (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT,
-    status VARCHAR(20) NOT NULL DEFAULT 'active', 
-    priority VARCHAR(10) NOT NULL DEFAULT 'medium', 
-    due_date TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+BEGIN;
+
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id          BIGSERIAL   PRIMARY KEY,
+    title       TEXT        NOT NULL CHECK (length(btrim(title)) > 0),
+    done        BOOLEAN     NOT NULL DEFAULT false,
+    priority    TEXT        NOT NULL DEFAULT 'medium'
+                 CHECK (priority IN ('low','medium','high')),
+    due_at      TIMESTAMPTZ NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
-CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
-CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_done       ON tasks(done);
+CREATE INDEX IF NOT EXISTS idx_tasks_due_at     ON tasks(due_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority   ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at);
 
-CREATE TABLE tags (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
-);
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TABLE task_tags (
-    task_id INT REFERENCES tasks(id) ON DELETE CASCADE,
-    tag_id INT REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (task_id, tag_id)
-);
+DROP TRIGGER IF EXISTS trg_tasks_updated ON tasks;
+CREATE TRIGGER trg_tasks_updated
+BEFORE UPDATE ON tasks
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
 
-CREATE INDEX IF NOT EXISTS idx_task_tags_task_id ON task_tags(task_id);
-CREATE INDEX IF NOT EXISTS idx_task_tags_tag_id ON task_tags(tag_id);
+COMMIT;

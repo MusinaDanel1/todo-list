@@ -1,44 +1,68 @@
 package services
 
 import (
+	"context"
+	"errors"
+	"strings"
+	"time"
+
 	"todo-list/backend/models"
 	"todo-list/backend/repositories"
 )
 
-type TaskService struct{}
-
-func NewTaskService() *TaskService {
-	return &TaskService{}
+type TaskService struct {
+	repo repositories.TaskRepository
 }
 
-func (s *TaskService) GetAllTasks() ([]models.Task, error) {
-	return repositories.GetAllTasks()
+func NewTaskService(repo repositories.TaskRepository) *TaskService {
+	return &TaskService{repo: repo}
 }
 
-func (s *TaskService) CreateTaskFromModel(task models.Task) (models.Task, error) {
-	id, err := repositories.CreateTask(task)
-	if err != nil {
-		return models.Task{}, err
+func (s *TaskService) CreateTask(ctx context.Context, title string, priority string, dueAt *time.Time) (*models.Task, error) {
+	title = strings.TrimSpace(title)
+	if title == "" {
+		return nil, errors.New("title is required")
 	}
-	task.ID = id
-	return task, nil
-}
-
-func (s *TaskService) UpdateTask(task models.Task) (models.Task, error) {
-	if err := repositories.UpdateTask(task); err != nil {
-		return models.Task{}, err
+	p := models.Priority(priority)
+	if p != models.PriorityLow && p != models.PriorityMedium && p != models.PriorityHigh {
+		p = models.PriorityMedium
 	}
-	return task, nil
+	t := &models.Task{
+		Title:    title,
+		Done:     false,
+		Priority: p,
+		DueAt:    dueAt,
+	}
+	if _, err := s.repo.Create(ctx, t); err != nil {
+		return nil, err
+	}
+	return t, nil
 }
 
-func (s *TaskService) DeleteTask(id int) error {
-	return repositories.DeleteTask(id)
+func (s *TaskService) DeleteTask(ctx context.Context, id int64) error {
+	return s.repo.Delete(ctx, id)
 }
 
-func (s *TaskService) ToggleTaskStatus(id int) error {
-	return repositories.ToggleTask(id)
+func (s *TaskService) SetDone(ctx context.Context, id int64, done bool) error {
+	return s.repo.SetDone(ctx, id, done)
 }
 
-func (s *TaskService) GetTaskByID(id int) (models.Task, error) {
-	return repositories.GetTaskByID(id)
+func (s *TaskService) ListTasks(ctx context.Context, f models.TaskFilter) ([]models.Task, error) {
+	// значения по умолчанию
+	if f.Status == "" {
+		f.Status = "all"
+	}
+	if f.DateScope == "" {
+		f.DateScope = "all"
+	}
+	if f.SortBy == "" {
+		f.SortBy = "created_at"
+	}
+	if f.SortOrder == "" {
+		f.SortOrder = "desc"
+	}
+	if f.Now.IsZero() {
+		f.Now = time.Now()
+	}
+	return s.repo.List(ctx, f)
 }

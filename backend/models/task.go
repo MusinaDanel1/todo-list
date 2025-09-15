@@ -2,13 +2,28 @@ package models
 
 import "time"
 
+type Priority string
+
+const (
+	PriorityLow    Priority = "low"
+	PriorityMedium Priority = "medium"
+	PriorityHigh   Priority = "high"
+)
+
 type Task struct {
-	ID          int       `db:"id" json:"id"`
-	Title       string    `db:"title" json:"title"`
-	Description string    `db:"description" json:"description"`
-	Status      string    `db:"status" json:"status"`
-	Priority    string    `db:"priority" json:"priority"`
-	DueDate     time.Time `db:"due_date" json:"due_date"`
-	CreatedAt   time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	ID        int64      `json:"id"`
+	Title     string     `json:"title"`
+	Done      bool       `json:"done"`
+	Priority  Priority   `json:"priority"`
+	DueAt     *time.Time `json:"due_at,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+}
+
+type TaskFilter struct {
+	Status    string    // all | active | completed
+	DateScope string    // all | today | week | overdue
+	SortBy    string    // created_at | due_at | priority
+	SortOrder string    // asc | desc
+	Now       time.Time // для детерминированных выборок/тестов
 }

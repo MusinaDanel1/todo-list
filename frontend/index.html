@@ -1,30 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="app">
-    <h1>To-Do List</h1>
-    
-    <div class="task-form">
-      <input type="text" id="title" placeholder="Task title">
-      <input type="text" id="description" placeholder="Description">
-      <input type="date" id="dueDate">
-      <select id="priority">
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
-      <button id="addTaskBtn">＋ Add Task</button>
+<!doctype html>
+<html lang="ru" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ToDo — Rick & Morty Edition</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="h-full bg-base-dark dark:bg-base-dark dark:text-white">
+    <!-- Портальный анимированный фон -->
+    <div class="portal-bg" aria-hidden="true"></div>
+
+    <div class="container rick">
+      <header class="header">
+        <div class="brand">
+          <div class="portal-orb" aria-hidden="true"></div>
+          <h1 class="title">Задачи — Rick & Morty</h1>
+        </div>
+        <button id="themeToggle" class="btn-ghost" aria-label="Toggle theme">🌙</button>
+      </header>
+
+      <!-- форма добавления -->
+      <section class="card glass">
+        <h2 class="section-title">Новая задача</h2>
+        <form id="taskForm" class="row gap wrap">
+          <input id="title" class="input flex-1" placeholder="Что нужно сделать, Морти?" />
+          <select id="priority" class="input">
+            <option value="low">Низкий</option>
+            <option value="medium" selected>Средний</option>
+            <option value="high">Высокий</option>
+          </select>
+          <input id="due" class="input" type="datetime-local" />
+          <button class="btn-primary" type="submit">Добавить</button>
+        </form>
+      </section>
+
+      <!-- фильтры/сортировки -->
+      <section class="toolbar row gap wrap">
+        <label class="lbl">Статус
+          <select id="status" class="input">
+            <option value="all">Все</option>
+            <option value="active">Активные</option>
+            <option value="completed">Выполненные</option>
+          </select>
+        </label>
+        <label class="lbl">Дата
+          <select id="date_scope" class="input">
+            <option value="all">Все</option>
+            <option value="today">Сегодня</option>
+            <option value="week">На неделю</option>
+            <option value="overdue">Просроченные</option>
+          </select>
+        </label>
+        <label class="lbl">Сортировка
+          <select id="sort_by" class="input">
+            <option value="created_at">Дата создания</option>
+            <option value="due_at">Дедлайн</option>
+            <option value="priority">Приоритет</option>
+          </select>
+        </label>
+        <label class="lbl">Порядок
+          <select id="sort_order" class="input">
+            <option value="desc">По убыванию</option>
+            <option value="asc">По возрастанию</option>
+          </select>
+        </label>
+        <button id="reload" class="btn-ghost">Обновить</button>
+      </section>
+
+      <!-- списки -->
+      <section>
+        <h3 class="section-title">Активные</h3>
+        <div id="listActive" class="list"></div>
+      </section>
+
+      <section>
+        <h3 class="section-title">Выполненные</h3>
+        <div id="listCompleted" class="list"></div>
+      </section>
     </div>
 
-    <ul id="taskList"></ul>
-  </div>
+    <!-- модалка подтверждения -->
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content glass card">
+        <div class="modal-title">Подтверждение</div>
+        <div class="modal-text">Удалить задачу безвозвратно?</div>
+        <div class="row gap right">
+          <button id="modalCancel" class="btn-ghost">Отмена</button>
+          <button id="modalOk" class="btn-primary">Удалить</button>
+        </div>
+      </div>
+    </div>
 
-  <script src="app.js"></script>
-</body>
+    <script src="/app.js"></script>
+  </body>
 </html>

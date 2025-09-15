@@ -1,38 +1,24 @@
 package db
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 	"os"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-var DB *sqlx.DB
-
-func InitDB() {
-	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		getEnv("DB_HOST", "localhost"),
-		getEnv("DB_PORT", "5432"),
-		getEnv("DB_USER", "todo_user"),
-		getEnv("DB_PASSWORD", "todo_pass"),
-		getEnv("DB_NAME", "todo_list"),
-	)
-
-	var err error
-	DB, err = sqlx.Connect("postgres", connStr)
+func MustOpen() *sql.DB {
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		dsn = "postgres://todo_user:todo_pass@localhost:5432/todo_list?sslmode=disable"
+	}
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе: %v", err)
+		log.Fatalf("open db: %v", err)
 	}
-
-	fmt.Println("✅ Подключение к базе успешно")
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
+	if err := db.Ping(); err != nil {
+		log.Fatalf("ping db: %v", err)
 	}
-	return fallback
+	return db
 }
